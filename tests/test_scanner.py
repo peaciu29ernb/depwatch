@@ -77,3 +77,11 @@ def test_ecosystems_property_unique(repo_dir: Path) -> None:
 def test_scan_repo_raises_for_missing_path(tmp_path: Path) -> None:
     with pytest.raises(NotADirectoryError):
         scan_repo(tmp_path / "nonexistent")
+
+
+def test_scan_repo_raises_for_file_path(tmp_path: Path) -> None:
+    """scan_repo should raise NotADirectoryError when given a file, not a dir."""
+    file_path = tmp_path / "not_a_dir.txt"
+    file_path.write_text("hello\n")
+    with pytest.raises(NotADirectoryError):
+        scan_repo(file_path)
