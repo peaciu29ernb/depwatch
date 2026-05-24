@@ -23,7 +23,8 @@ class TrendHook:
     def after_cycle(self, report: Report) -> None:
         """Update the digest then recompute the trend."""
         self._digest.after_cycle(report)
-        self._trend = build_trend(list(self._digest.summary().entries))
+        entries = list(self._digest.summary().entries)
+        self._trend = build_trend(entries) if entries else None
 
     # ------------------------------------------------------------------
     # Accessors
@@ -31,9 +32,20 @@ class TrendHook:
 
     @property
     def trend(self) -> Optional[TrendResult]:
+        """The most recently computed TrendResult, or None if no cycles have run."""
         return self._trend
 
     def summary(self) -> str:
+        """Return a human-readable one-line summary of the current trend."""
         if self._trend is None:
             return "trend: no data"
         return format_trend_oneline(self._trend)
+
+    def reset(self) -> None:
+        """Clear the accumulated digest history and trend state.
+
+        Useful when the monitored dependency set changes significantly and
+        historical comparisons would no longer be meaningful.
+        """
+        self._digest.reset()
+        self._trend = None
